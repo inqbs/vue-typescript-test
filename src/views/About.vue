@@ -1,5 +1,5 @@
 <template>
-  <div class="about">
+  <div class="container mx-auto">
     <h1>This is an captcha page</h1>
     <CaptchaComp
       :width="480"
