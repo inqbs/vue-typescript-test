@@ -1,6 +1,9 @@
 <template>
   <div>
-    <canvas id="canvas" ref="captcha" />
+    <canvas
+      id="canvas"
+      ref="captcha"
+    />
   </div>
 </template>
 
@@ -15,15 +18,15 @@ const chance = new Chance(Math.random)
 
 @Component
 export default class CaptchaComp extends Vue {
-  @Prop({ required: true }) readonly width!: number
-  @Prop({ required: true }) readonly height!: number
-  @Prop({ default: 0xfafafa }) readonly backgroundColor!: number
-  @Prop({ required: true }) readonly enckey!: string
+  @Prop({ required: true }) readonly width!: number;
+  @Prop({ required: true }) readonly height!: number;
+  @Prop({ default: 0xfafafa }) readonly backgroundColor!: number;
+  @Prop({ required: true }) readonly enckey!: string;
 
-  key!: string
-  app!: PIXI.Application
+  key!: string;
+  app!: PIXI.Application;
 
-  async mounted() {
+  async mounted () {
     PIXI.utils.skipHello()
     const app = await this.init()
     this.generate(app)
@@ -31,7 +34,7 @@ export default class CaptchaComp extends Vue {
   }
 
   //  캡차용 canvas 정의
-  init() {
+  init () {
     const captcha = this.$refs.captcha as HTMLCanvasElement
     const app = new PIXI.Application({
       width: this.width,
@@ -40,17 +43,19 @@ export default class CaptchaComp extends Vue {
       resolution: window.devicePixelRatio || 1,
       antialias: true,
       backgroundAlpha: 1,
-      view: captcha,
+      view: captcha
     })
     return Promise.resolve(app)
   }
+
   //  canvas 초기화
-  resetCanvas(app = this.app) {
+  resetCanvas (app = this.app) {
+    // eslint-disable-next-line no-unused-expressions
     app?.stage?.removeChildren()
   }
 
   //  캡차 생성
-  generateKey(length: number) {
+  generateKey (length: number) {
     const isOdd = length % 2 === 1
     const target = Math.floor(length / 2)
 
@@ -65,7 +70,7 @@ export default class CaptchaComp extends Vue {
     return chance.shuffle(keyArray).join('')
   }
 
-  generate(app = this.app) {
+  generate (app = this.app) {
     this.resetCanvas(app)
 
     const key = this.generateKey(6)
@@ -76,22 +81,22 @@ export default class CaptchaComp extends Vue {
   }
 
   //  랜덤 색상 생성
-  generateRandomColor(options: Chance.Options | undefined) {
+  generateRandomColor (options: Chance.Options | undefined) {
     return chance.color({
       min: 5,
       max: 220,
-      ...options,
+      ...options
     })
   }
 
   //  canvas에 수치 반영
-  draw(app: PIXI.Application, val: string) {
+  draw (app: PIXI.Application, val: string) {
     this.drawText(app, val)
     this.drawLine(app)
     this.drawPoint(app)
   }
 
-  drawText(app: PIXI.Application, val: string) {
+  drawText (app: PIXI.Application, val: string) {
     const width = this.width
     const height = this.height
 
@@ -100,18 +105,25 @@ export default class CaptchaComp extends Vue {
       .map((text: string) => ({
         text,
         style: new PIXI.TextStyle({
-          fontFamily: ['Lucida Sans Unicode', 'Lucida Grande', 'Arial', 'sans-serif'],
+          fontFamily: [
+            'Lucida Sans Unicode',
+            'Lucida Grande',
+            'Arial',
+            'sans-serif'
+          ],
           fontSize: chance.integer({
             min: width / 6 - 12,
-            max: width / 6 + 12,
+            max: width / 6 + 12
           }),
-          fill: this.generateRandomColor({ format: '0x' }),
-        }),
+          fill: this.generateRandomColor({ format: '0x' })
+        })
       }))
       .map(({ text, style }) => new PIXI.Text(text, style))
       .map((text: PIXI.Text) => {
         text.anchor.set(0.5, 0.5)
-        const skewX = (chance.integer({ min: -30, max: -10 }) / 100) * (chance.bool() ? -1 : 1)
+        const skewX =
+          (chance.integer({ min: -30, max: -10 }) / 100) *
+          (chance.bool() ? -1 : 1)
         const skewY = chance.integer({ min: -20, max: -7 }) / 100
         text.skew.set(skewX, skewY)
         return text
@@ -120,24 +132,24 @@ export default class CaptchaComp extends Vue {
         const prevItem = array[idx - 1]
         text.x = prevItem
           ? prevItem.x +
-            chance.integer({
-              min: width / 6 - 8,
-              max: width / 6,
-            })
+          chance.integer({
+            min: width / 6 - 8,
+            max: width / 6
+          })
           : chance.integer({
-              min: width / 12,
-              max: width / 12 + 10,
-            })
+            min: width / 12,
+            max: width / 12 + 10
+          })
         text.y = chance.integer({
           min: height / 2 - 15,
-          max: height / 2 + 15,
+          max: height / 2 + 15
         })
         return text
       })
       .forEach((text: PIXI.Text) => app?.stage?.addChild(text))
   }
 
-  drawLine(app: PIXI.Application) {
+  drawLine (app: PIXI.Application) {
     const width = this.width
     const height = this.height
 
@@ -145,7 +157,7 @@ export default class CaptchaComp extends Vue {
     Array(lineCnt)
       .fill(null)
       .map(() => new PIXI.Graphics())
-      .map(path => {
+      .map((path) => {
         const color = this.generateRandomColor({ format: 'hex' })
         const hexValue = parseInt(`0x${color.substring(1)}`, 16)
 
@@ -157,7 +169,7 @@ export default class CaptchaComp extends Vue {
         const y1 = chance.integer({ min: 0, max: (height * 5) / 6 })
         const y2 = chance.integer({
           min: height / 6,
-          max: height,
+          max: height
         })
         const trigger = !!(idx % 2)
         if (trigger) {
@@ -169,10 +181,10 @@ export default class CaptchaComp extends Vue {
         }
         return path
       })
-      .forEach(path => app?.stage?.addChild(path))
+      .forEach((path) => app?.stage?.addChild(path))
   }
 
-  drawPoint(app: PIXI.Application) {
+  drawPoint (app: PIXI.Application) {
     const width = this.width
     const height = this.height
 
@@ -180,15 +192,18 @@ export default class CaptchaComp extends Vue {
     Array(pointCnt)
       .fill(null)
       .map(() => new PIXI.Graphics())
-      .map(path => {
+      .map((path) => {
         const color = this.generateRandomColor({ format: 'hex' })
         const hexValue = parseInt(`0x${color.substring(1)}`, 16)
         path.beginFill(hexValue)
         return path
       })
-      .map(path => {
+      .map((path) => {
         const targetSize = Math.floor((width * height) / 14400)
-        const lineSize = chance.integer({ min: targetSize - 5, max: targetSize })
+        const lineSize = chance.integer({
+          min: targetSize - 5,
+          max: targetSize
+        })
 
         const x = chance.integer({ min: 0, max: width })
         const y = chance.integer({ min: 0, max: height })
@@ -196,11 +211,11 @@ export default class CaptchaComp extends Vue {
         path.endFill()
         return path
       })
-      .forEach(path => app?.stage?.addChild(path))
+      .forEach((path) => app?.stage?.addChild(path))
   }
 
   //  사이즈 조정
-  resize() {
+  resize () {
     const app = this.app
     if (!app) return
 
@@ -210,21 +225,21 @@ export default class CaptchaComp extends Vue {
   }
 
   //  암호화
-  encrypt(key: string | CryptoES.lib.WordArray | undefined) {
+  encrypt (key: string | CryptoES.lib.WordArray | undefined) {
     const hash = CryptoES.HmacSHA256(key, this.enckey)
     return CryptoES.enc.Base64.stringify(hash)
   }
 
   //  값검증
   //  컴포넌트를 참조(ref)로 불러 실행
-  validate(val: string) {
+  validate (val: string) {
     const hashInput = this.encrypt(val)
     return this.key === hashInput
   }
 
   @Watch('width')
   @Watch('height')
-  onSizeChange() {
+  onSizeChange () {
     this.$nextTick().then(() => this.resize())
   }
 }
